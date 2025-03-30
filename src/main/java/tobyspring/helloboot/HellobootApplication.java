@@ -25,7 +25,8 @@ public class HellobootApplication {
 	public static void main(String[] args) {
 		//spring container 만들기
 		GenericApplicationContext applicationContext = new GenericApplicationContext();
-		applicationContext.registerBean(HelloController.class); //Bean 등록
+		applicationContext.registerBean(HelloController.class); // Bean 등록
+		applicationContext.registerBean(SimpleHelloService.class); //Bean 등록
 		applicationContext.refresh(); //초기화
 
 		TomcatServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
@@ -40,7 +41,6 @@ public class HellobootApplication {
 						String name = req.getParameter("name");
 
 						HelloController helloController = applicationContext.getBean(HelloController.class); //Bean 가져오기
-
 						String result = helloController.hello(name);
 
 						resp.setContentType(MediaType.TEXT_PLAIN_VALUE);
