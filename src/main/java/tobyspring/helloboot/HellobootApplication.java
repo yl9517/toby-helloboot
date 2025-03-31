@@ -16,6 +16,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.IOException;
 
@@ -24,33 +26,18 @@ public class HellobootApplication {
 
 	public static void main(String[] args) {
 		//spring container 만들기
-		GenericApplicationContext applicationContext = new GenericApplicationContext();
+		GenericWebApplicationContext applicationContext = new GenericWebApplicationContext();
 		applicationContext.registerBean(HelloController.class); // Bean 등록
 		applicationContext.registerBean(SimpleHelloService.class); //Bean 등록
 		applicationContext.refresh(); //초기화
 
+		//servlet container
 		TomcatServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
 		WebServer webServer = serverFactory.getWebServer(servletContext -> {
-
-		//서블릿 등록
-			servletContext.addServlet("front-controller", new HttpServlet() {
-				@Override
-				protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-					//front-controller에서 공통기능 처리
-					if(req.getRequestURI().equals("/hello") && req.getMethod().equals(HttpMethod.GET.name())){
-						String name = req.getParameter("name");
-
-						HelloController helloController = applicationContext.getBean(HelloController.class); //Bean 가져오기
-						String result = helloController.hello(name);
-
-						resp.setContentType(MediaType.TEXT_PLAIN_VALUE);
-						resp.getWriter().println(result);
-					}else{
-						resp.setStatus(HttpStatus.NOT_FOUND.value());
-					}
-				}
-			}).addMapping("/*");
-        });
+			servletContext.addServlet("dispatcherServlet",
+							new DispatcherServlet(applicationContext)
+						).addMapping("/*");
+		});
 		webServer.start();
 		//SpringApplication.run(HellobootApplication.class, args);
 	}
