@@ -27,26 +27,7 @@ public class HellobootApplication {
 	}
 
 	public static void main(String[] args) {
-		//spring container 만들기
-			AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(){
-			@Override
-			protected void onRefresh() {
-				super.onRefresh();
-				//servlet container
-				ServletWebServerFactory serverFactory = this.getBean(ServletWebServerFactory.class);
-				DispatcherServlet dispatcherServlet = this.getBean(DispatcherServlet.class);
-				// dispatcherServlet.setApplicationContext(this); 없어도 됨. 스프링 컨테이너가 알아서 넣어줌
-
-				WebServer webServer = serverFactory.getWebServer(servletContext -> {
-					servletContext.addServlet("dispatcherServlet",dispatcherServlet).addMapping("/*");
-				});
-				webServer.start();
-			}
-		};
-
-		applicationContext.register(HellobootApplication.class);
-		applicationContext.refresh(); //초기화
-
+		MySpringApplication.run(HellobootApplication.class, args);
 
 		//SpringApplication.run(HellobootApplication.class, args);
 	}
